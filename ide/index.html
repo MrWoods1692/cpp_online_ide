@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青少年编程IDE</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/themes.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <!-- Monaco Editor 本地依赖 -->
+    <script src="vendor/loader.js"></script>
+    <!-- KaTeX 本地依赖 -->
+    <link rel="stylesheet" href="vendor/katex.min.css">
+    <script src="vendor/katex.min.js"></script>
+    <!-- Marked 本地依赖 -->
+    <script src="vendor/marked.min.js"></script>
+    <!-- Prism 本地依赖 -->
+    <link rel="stylesheet" href="vendor/prism-tomorrow.min.css">
+    <script src="vendor/prism.min.js"></script>
+    <script src="vendor/prism-cpp.min.js"></script>
+</head>
+<body class="theme-light">
+    <div class="app-container">
+        <!-- 左侧文件列表区域 -->
+        <aside class="file-sidebar" id="fileSidebar">
+            <div class="file-search-container">
+                <input type="text" class="file-search" id="fileSearch" placeholder="搜索文件...">
+            </div>
+            <div class="file-actions">
+                <button class="btn-secondary" id="newFileBtn" title="新建文件 (Ctrl+Alt+N)">新建文件</button>
+                <button class="btn-secondary" id="importFileBtn" title="导入本地文件">导入文件</button>
+                <input type="file" id="fileInput" style="display: none;" accept=".cpp,.h,.hpp,.cxx,.cc">
+            </div>
+            <div class="file-list" id="fileList">
+                <!-- 文件列表将动态生成 -->
+            </div>
+        </aside>
+
+        <!-- 中间编辑区域 -->
+        <main class="editor-area">
+            <div class="editor-header">
+                <div class="editor-controls-left">
+                </div>
+                <div class="editor-title" id="editorTitle">未打开文件</div>
+                <div class="editor-controls-right">
+                    <button class="icon-btn" id="formatBtn" title="格式化代码">
+                        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V6h1v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-4zM6 2h1v2H6V2zm3 0h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1V6H9v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1zm1 2h1v2H9V4z"/><path d="M1.5 10a.5.5 0 0 1 .5.5h4a.5.5 0 0 1 0 1H2v2h4a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5zm9 0a.5.5 0 0 1 .5.5h4a.5.5 0 0 1 0 1H11v2h4a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5z"/></svg>
+                    </button>
+                    <button class="btn-primary" id="runBtn" title="编译运行 (F11)">
+                        <svg width="16" height="16" viewBox="0 0 16 16" style="margin-right: 4px;"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M6.271 5.055a.5.5 0 0 1 .79 0l3.458 4.208a.5.5 0 0 1-.79.624L6.271 5.679a.5.5 0 0 1 0-.624z"/><path d="M6 11.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/></svg>
+                        运行
+                    </button>
+                </div>
+            </div>
+            <div class="editor-container" id="editorContainer">
+                <!-- Monaco Editor will be initialized here -->
+            </div>
+            <div class="editor-footer">
+            </div>
+        </main>
+
+        <!-- 右侧AI对话区域 -->
+        <aside class="ai-sidebar" id="aiSidebar">
+            <div class="ai-header">
+                <div class="ai-header-left">
+                    <h3>AI 助手</h3>
+                </div>
+                <div class="ai-header-right">
+                    <button class="icon-btn" id="toggleAiSidebarBtn" title="切换AI面板">
+                        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+                    </button>
+                    <button class="icon-btn" id="clearChatBtn" title="清空对话">
+                        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="ai-chat" id="aiChat">
+                <!-- 对话内容将动态生成 -->
+            </div>
+            <div class="ai-input-area">
+                <select class="model-select" id="modelSelect">
+                    <option value="">Claude 4.5 Hiku</option>
+                </select>
+                <textarea class="ai-input" id="aiInput" placeholder="输入消息... (Ctrl+Enter发送)"></textarea>
+                <button class="btn-primary" id="sendBtn">发送</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 设置按钮 -->
+    <button class="settings-btn" id="settingsBtn" title="设置">
+        <svg width="20" height="20" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.292-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.292c.415.764-.42 1.6-1.185 1.184l-.292-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.292A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/></svg>
+    </button>
+
+    <!-- 设置弹窗 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>设置</h2>
+                <button class="icon-btn" id="closeSettingsBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label>主题模式</label>
+                    <select id="themeModeSelect">
+                        <option value="light">亮色</option>
+                        <option value="dark">暗色</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>文件列表宽度</label>
+                    <input type="range" id="fileSidebarWidth" min="150" max="350" value="200">
+                    <span id="fileSidebarWidthValue">200px</span>
+                </div>
+
+                <div class="setting-item">
+                    <label>字体大小</label>
+                    <input type="range" id="fontSize" min="10" max="24" value="14">
+                    <span id="fontSizeValue">14px</span>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="autoSaveEnabled"> 启用自动保存
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>自动保存间隔（秒）</label>
+                    <input type="number" id="autoSaveInterval" min="1" max="60" value="5">
+                </div>
+                <div class="setting-item">
+                    <label>亮色主题颜色</label>
+                    <input type="color" id="lightThemeColor" value="#007acc">
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="aiSidebarVisible"> 显示AI对话区
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" data-action="rename">重命名</div>
+        <div class="context-menu-item" data-action="delete">删除</div>
+        <div class="context-menu-item" data-action="pin">置顶</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-action="ai-complete">AI补全代码</div>
+        <div class="context-menu-item" data-action="ai-explain">AI解释选中代码</div>
+        <div class="context-menu-item" data-action="ai-fix">AI修复报错</div>
+    </div>
+
+    <!-- 自定义输入对话框 -->
+    <div class="modal-overlay" id="inputModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="inputModalTitle">输入文件名</h2>
+                <button class="icon-btn" id="closeInputModalBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="inputModalField" class="input-field" placeholder="请输入...">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="inputModalCancelBtn">取消</button>
+                <button class="btn-primary" id="inputModalConfirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义确认对话框 -->
+    <div class="modal-overlay" id="confirmModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="confirmModalTitle">确认操作</h2>
+                <button class="icon-btn" id="closeConfirmModalBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">确定要执行此操作吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="confirmModalCancelBtn">取消</button>
+                <button class="btn-primary" id="confirmModalConfirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 终端输出页面（运行时打开新标签页） -->
+    <script src="scripts/fileManager.js"></script>
+    <script src="scripts/editor.js"></script>
+    <script src="scripts/offlineCompiler.js"></script>
+    <script src="scripts/compiler.js"></script>
+    <script src="scripts/ai.js"></script>
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/keyboard.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --transition: 0.2s ease;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* 文件列表侧边栏 */
+.file-sidebar {
+    width: 200px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: width var(--transition), background var(--transition);
+}
+
+.file-search-container {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.file-search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.file-search:focus {
+    border-color: var(--primary-color);
+}
+
+.file-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.file-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background var(--transition);
+    position: relative;
+}
+
+.file-item:hover {
+    background: var(--hover-bg);
+}
+
+.file-item.active {
+    background: var(--active-bg);
+    border-left: 3px solid var(--primary-color);
+}
+
+.file-item-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.file-item-name {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-item-pinned {
+    opacity: 0.6;
+    font-size: 12px;
+}
+
+/* 编辑区域 */
+.editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--editor-bg);
+    transition: background var(--transition);
+    min-width: 400px;
+}
+
+.editor-header {
+    height: 40px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 12px;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.editor-controls-left,
+.editor-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editor-title {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.editor-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.editor-footer {
+    height: 40px;
+    background: var(--header-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+/* AI对话侧边栏 */
+.ai-sidebar {
+    width: 300px;
+    background: var(--sidebar-bg);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: width var(--transition), background var(--transition);
+}
+
+/* AI对话区域隐藏状态 */
+.ai-sidebar.hidden {
+    width: 0;
+    border-left: none;
+    overflow: hidden;
+}
+
+/* AI头部区域 */
+.ai-header {
+    height: 40px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.ai-header-left h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.ai-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ai-input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    background: var(--header-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.model-select {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.model-select:focus {
+    border-color: var(--primary-color);
+}
+
+.ai-input {
+    min-height: 80px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.ai-input:focus {
+    border-color: var(--primary-color);
+}
+
+/* 按钮样式 */
+.btn-primary,
+.btn-secondary {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+}
+
+.icon-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition);
+}
+
+.icon-btn:hover {
+    background: var(--hover-bg);
+}
+
+.icon-btn svg {
+    fill: currentColor;
+}
+
+/* 设置按钮 */
+.settings-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all var(--transition);
+    z-index: 1000;
+}
+
+.settings-btn:hover {
+    background: var(--primary-hover);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.settings-btn svg {
+    fill: currentColor;
+}
+
+/* 弹窗 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--sidebar-bg);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.setting-item {
+    margin-bottom: 20px;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.setting-item input[type="range"],
+.setting-item input[type="number"],
+.setting-item select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    outline: none;
+}
+
+.setting-item input[type="range"] {
+    padding: 0;
+}
+
+.setting-item input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* 右键菜单 */
+.context-menu {
+    position: fixed;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    min-width: 160px;
+    z-index: 3000;
+    padding: 4px 0;
+}
+
+.context-menu.show {
+    display: flex;
+}
+
+.context-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 14px;
+    transition: background var(--transition);
+}
+
+.context-menu-item:hover {
+    background: var(--hover-bg);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}
+
+/* 输入字段样式 */
+.input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.input-field:focus {
+    border-color: var(--primary-color);
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+/* AI对话消息样式 */
+.ai-message {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-message.user {
+    align-items: flex-end;
+}
+
+.ai-message.assistant {
+    align-items: flex-start;
+}
+
+.message-bubble {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    word-wrap: break-word;
+}
+
+.ai-message.user .message-bubble {
+    background: var(--primary-color);
+    color: white;
+}
+
+.ai-message.assistant .message-bubble {
+    background: var(--message-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.message-content {
+    line-height: 1.6;
+}
+
+.message-content code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+}
+
+.message-content pre {
+    background: var(--code-bg);
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 8px 0;
+    border: 1px solid var(--border-color);
+}
+
+.message-content pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.message-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.message-action-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.message-action-btn:hover {
+    background: var(--hover-bg);
+}
+
+/* 代码对比视图 */
+.code-diff {
+    background: var(--code-bg);
+    padding: 12px;
+    border-radius: 4px;
+    margin: 8px 0;
+    border: 1px solid var(--border-color);
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+}
+
+.code-diff .line {
+    padding: 2px 0;
+}
+
+.code-diff .line.deleted {
+    background: rgba(244, 135, 113, 0.2);
+    color: #f48771;
+}
+
+.code-diff .line.added {
+    background: rgba(78, 201, 176, 0.2);
+    color: #4ec9b0;
+}
+
+/* 加载动画 */
+.loading {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 通知系统 */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 4000;
+    max-width: 350px;
+    pointer-events: none;
+}
+
+.notification {
+    background: var(--sidebar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    pointer-events: auto;
+    animation: slideIn 0.3s ease forwards;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.notification.info {
+    border-left: 4px solid var(--primary-color);
+}
+
+.notification.success {
+    border-left: 4px solid #4ec9b0;
+    background: rgba(78, 201, 176, 0.05);
+}
+
+.notification.error {
+    border-left: 4px solid #f48771;
+    background: rgba(244, 135, 113, 0.05);
+}
+
+.notification.warning {
+    border-left: 4px solid #ffd43b;
+    background: rgba(255, 212, 59, 0.05);
+}
+
+.notification-content {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-color);
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.notification-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition);
+    opacity: 0.6;
+}
+
+.notification-close:hover {
+    background: var(--hover-bg);
+    opacity: 1;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}

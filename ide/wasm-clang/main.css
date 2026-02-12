@@ -1,0 +1,35 @@
+* {
+  box-sizing: border-box;
+}
+#all {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: auto
+}
+.toolbar-left {
+  grid-area: 1 / 1 / 2 / 2;
+}
+.toolbar-right {
+  grid-area: 1 / 3 / 2 / 4;
+}
+#layout {
+  grid-area: 2 / 1 / 3 / 4;
+}
+.canvas {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+.font-size {
+  float: left;
+  padding: 0 1em;
+  font-size: small;
+}
+.hidden {
+  display: none;
+}

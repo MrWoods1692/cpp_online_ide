@@ -1,0 +1,26 @@
+{
+  "name": "teen-coding-ide",
+  "version": "1.0.0",
+  "description": "青少年编程IDE - 浏览器端C++开发环境",
+  "main": "server.js",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "serve": "npx http-server -p 8000 -c-1",
+    "server": "node server.js"
+  },
+  "keywords": [
+    "ide",
+    "cpp",
+    "editor",
+    "education",
+    "wasm",
+    "websocket"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
+  }
+}

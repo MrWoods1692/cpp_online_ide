@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>程序输出 - 青少年编程IDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .terminal-header {
+            background: #2d2d30;
+            padding: 10px 20px;
+            margin: -20px -20px 20px -20px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .terminal-stats {
+            font-size: 12px;
+            color: #858585;
+        }
+
+        .terminal-content {
+            background: #1e1e1e;
+            min-height: calc(100vh - 100px);
+        }
+
+        .output-line {
+            line-height: 1.6;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            padding: 2px 0;
+        }
+
+        .input-prompt {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .input-hint {
+            font-size: 12px;
+            color: #858585;
+            margin-top: 5px;
+            margin-left: 20px;
+        }
+
+        .prompt-symbol {
+            color: #4ec9b0;
+            margin-right: 8px;
+        }
+
+        .input-field {
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: inherit;
+            flex: 1;
+            outline: none;
+        }
+
+        .error {
+            color: #f48771;
+        }
+
+        .success {
+            color: #4ec9b0;
+        }
+
+        .info {
+            color: #569cd6;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-header">
+        <div class="terminal-title">程序输出</div>
+        <div class="terminal-stats" id="terminalStats"></div>
+    </div>
+    <div class="terminal-content" id="terminalContent"></div>
+    <div class="input-prompt" id="inputPrompt" style="display: none;">
+        <span class="prompt-symbol">></span>
+        <input type="text" class="input-field" id="terminalInput" autofocus>
+    </div>
+    <div class="input-hint" id="inputHint" style="display: none;">提示：输入数据，用空格分隔多个值，回车发送。循环输入时，可输入多行数据，最后按Ctrl+D（或在新行输入EOF）结束。</div>
+
+    <script>
+        const terminalContent = document.getElementById('terminalContent');
+        const terminalStats = document.getElementById('terminalStats');
+        const inputPrompt = document.getElementById('inputPrompt');
+        const terminalInput = document.getElementById('terminalInput');
+        const inputHint = document.getElementById('inputHint');
+
+        let startTime = Date.now();
+        let memoryUsage = 0;
+
+        // 只通过postMessage接收消息，不再监听storage事件
+        // 检查初始数据
+        const initialOutput = sessionStorage.getItem('terminalOutput');
+        if (initialOutput) {
+            const data = JSON.parse(initialOutput);
+            appendOutput(data.text, data.type);
+            // 清除初始数据，避免重复显示
+            sessionStorage.removeItem('terminalOutput');
+        }
+
+        function appendOutput(text, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `output-line ${type}`;
+            line.textContent = text;
+            terminalContent.appendChild(line);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        function showStats(time, memory) {
+            let statsText = '';
+            
+            // 处理运行时间
+            if (typeof time === 'number' && !isNaN(time)) {
+                // 注意：来自编译器的time参数单位是秒，已经转换好了
+                // 确保显示为3位小数，即使时间为0
+                const formattedTime = time.toFixed(3);
+                statsText += `运行时间: ${formattedTime} s`;
+            }
+            
+            // 处理内存使用
+            if (typeof memory === 'number' && !isNaN(memory)) {
+                // 注意：来自编译器的memory参数单位是字节
+                const memoryBytes = memory;
+                
+                let formattedMemory;
+                let memoryUnit;
+                
+                if (memoryBytes >= 1024 * 1024) {
+                    // 大于等于1MB，显示MB，最多保留2位小数
+                    formattedMemory = parseFloat((memoryBytes / (1024 * 1024)).toFixed(2));
+                    memoryUnit = 'MB';
+                } else if (memoryBytes >= 1024) {
+                    // 大于等于1KB，显示KB，保留整数
+                    formattedMemory = Math.round(memoryBytes / 1024);
+                    memoryUnit = 'KB';
+                } else {
+                    // 小于1KB，显示字节，保留整数
+                    formattedMemory = memoryBytes;
+                    memoryUnit = 'B';
+                }
+                
+                if (statsText) {
+                    statsText += ' | ';
+                }
+                statsText += `内存: ${formattedMemory} ${memoryUnit}`;
+            }
+            
+            // 只有在有统计信息时才显示
+            if (statsText) {
+                terminalStats.textContent = statsText;
+            }
+        }
+
+        // 处理输入
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const input = terminalInput.value;
+                
+                // 显示输入，不添加 > 符号
+                appendOutput(input, 'info');
+                
+                // 发送输入到主窗口
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'terminal-input',
+                        data: input
+                    }, '*');
+                }
+                
+                // 清空输入
+                terminalInput.value = '';
+                
+                // 保持输入提示显示，直到收到输入请求
+                // 不再立即隐藏输入提示
+            }
+        });
+
+        // 处理Ctrl+D组合键，用于结束输入
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'd') {
+                const input = '';
+                
+                // 显示输入，不添加 > 符号
+                appendOutput('EOF', 'info');
+                
+                // 发送输入到主窗口
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'terminal-input',
+                        data: input
+                    }, '*');
+                }
+                
+                // 清空输入
+                terminalInput.value = '';
+            }
+        });
+
+        // 多行输入支持
+        let multiLineInput = '';
+        let isMultiLineMode = false;
+
+        // 监听来自主窗口的消息
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'terminal-clear') {
+                // 清空终端内容
+                terminalContent.innerHTML = '';
+                inputPrompt.style.display = 'none';
+                inputHint.style.display = 'none';
+            } else if (e.data.type === 'terminal-output') {
+                appendOutput(e.data.text, e.data.type || 'info');
+            } else if (e.data.type === 'terminal-error') {
+                appendOutput(e.data.text, 'error');
+            } else if (e.data.type === 'terminal-input-request') {
+                // 不再清空终端内容，保留之前的输入和输出
+                // 确保输入提示显示
+                inputPrompt.style.display = 'flex';
+                // 隐藏输入提示信息
+                inputHint.style.display = 'none';
+                terminalInput.focus();
+                multiLineInput = '';
+                isMultiLineMode = true;
+            } else if (e.data.type === 'terminal-complete') {
+                // 程序运行完成，隐藏输入提示和光标
+                inputPrompt.style.display = 'none';
+                // 清空输入框内容
+                terminalInput.value = '';
+                // 隐藏输入提示信息
+                inputHint.style.display = 'none';
+                multiLineInput = '';
+                isMultiLineMode = false;
+                // 显示统计信息
+                showStats(e.data.time, e.data.memory);
+            } else if (e.data.type === 'terminal-ready') {
+                // 终端准备就绪
+                // 只在开发环境下显示日志
+                if (window.location.hostname === 'localhost') {
+                    console.log('终端准备就绪');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
